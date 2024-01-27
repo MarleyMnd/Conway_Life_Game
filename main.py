@@ -8,11 +8,11 @@ GOING_TO_DIE_COLOR = (255, 240, 170)
 ALIVE_COLOR = (255, 255, 255)
 
 
-def update_state(screen, cells, size, paused=False):
+def update_state(screen, cells, size, playing=False):
     grid = np.zeros((cells.shape[0], cells.shape[1]))
 
     for row, column in np.ndindex(cells.shape):
-        nb_alive_neighbors = np.sum(cells[row - 1:row + 2, column - 1:column + 2]) - cells[row,column]
+        nb_alive_neighbors = np.sum(cells[row-1:row+2, column-1:column+2]) - cells[row, column]
 
         if cells[row, column] == 0:
             color = BACKGROUND_COLOR
@@ -21,26 +21,26 @@ def update_state(screen, cells, size, paused=False):
 
         if cells[row,column] == 1:
             if nb_alive_neighbors < 2 or nb_alive_neighbors > 3:
-                if paused:
+                if playing:
                     color = GOING_TO_DIE_COLOR
             elif 2 <= nb_alive_neighbors <= 3:
                 grid[row, column] = 1
-                if paused:
+                if playing:
                     color = ALIVE_COLOR
         else:
             if nb_alive_neighbors == 3:
                 grid[row, column] = 1
-                if paused:
+                if playing:
                     color = ALIVE_COLOR
 
         pygame.draw.rect(screen, color, (column*size, row*size, size - 1, size - 1))
 
     return grid
 
+
 def main():
     pygame.init()
-    flags = pygame.SCALED | pygame.FULLSCREEN
-    screen = pygame.display.set_mode((1000, 800), flags, vsync=1)
+    screen = pygame.display.set_mode((1000, 800))
 
     cells = np.zeros((80, 100))
 
@@ -51,16 +51,16 @@ def main():
     pygame.display.flip()
     pygame.display.update()
 
-    paused = False
+    running = False
 
     while True:
         for event in pygame.event.get():
-            if event.type == pygame.quit:
+            if event.type == pygame.QUIT:
                 pygame.quit()
-                return
+                exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    paused = not paused
+                    running = not running
                     update_state(screen, cells, 10)
                     pygame.display.update()
 
@@ -68,3 +68,16 @@ def main():
                 position = pygame.mouse.get_pos()
                 cells[position[1] // 10, position[0] // 10] = 1
                 update_state(screen, cells, 10)
+                pygame.display.update()
+
+        screen.fill(GRID_COLOR)
+
+        if running:
+            cells = update_state(screen, cells, 10, playing=True)
+            pygame.display.update()
+
+        time.sleep(0.001)
+
+
+if __name__ == "__main__":
+    main()
