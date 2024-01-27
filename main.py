@@ -8,8 +8,8 @@ GOING_TO_DIE_COLOR = (255, 240, 170)
 ALIVE_COLOR = (255, 255, 255)
 
 
-def update_state(screen, cells, size, playing=False):
-    grid = np.empty((cells.shape[0], cells.shape[1]))
+def update_state(screen, cells, size, paused=False):
+    grid = np.zeros((cells.shape[0], cells.shape[1]))
 
     for row, column in np.ndindex(cells.shape):
         nb_alive_neighbors = np.sum(cells[row - 1:row + 2, column - 1:column + 2]) - cells[row,column]
@@ -21,18 +21,50 @@ def update_state(screen, cells, size, playing=False):
 
         if cells[row,column] == 1:
             if nb_alive_neighbors < 2 or nb_alive_neighbors > 3:
-                if playing:
+                if paused:
                     color = GOING_TO_DIE_COLOR
             elif 2 <= nb_alive_neighbors <= 3:
                 grid[row, column] = 1
-                if playing:
+                if paused:
                     color = ALIVE_COLOR
         else:
             if nb_alive_neighbors == 3:
                 grid[row, column] = 1
-                if playing:
+                if paused:
                     color = ALIVE_COLOR
 
         pygame.draw.rect(screen, color, (column*size, row*size, size - 1, size - 1))
 
     return grid
+
+def main():
+    pygame.init()
+    flags = pygame.SCALED | pygame.FULLSCREEN
+    screen = pygame.display.set_mode((1000, 800), flags, vsync=1)
+
+    cells = np.zeros((80, 100))
+
+    screen.fill(GRID_COLOR)
+
+    update_state(screen, cells, 10)
+
+    pygame.display.flip()
+    pygame.display.update()
+
+    paused = False
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.quit:
+                pygame.quit()
+                return
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    paused = not paused
+                    update_state(screen, cells, 10)
+                    pygame.display.update()
+
+            if pygame.mouse.get_pressed()[0]:
+                position = pygame.mouse.get_pos()
+                cells[position[1] // 10, position[0] // 10] = 1
+                update_state(screen, cells, 10)
