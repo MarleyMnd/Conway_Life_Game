@@ -69,6 +69,11 @@ def main():
                 cells[position[1] // 10, position[0] // 10] = 1
                 update_state(screen, cells, 10)
                 pygame.display.update()
+            if pygame.mouse.get_pressed()[2]:
+                position = pygame.mouse.get_pos()
+                cells[position[1] // 10, position[0] // 10] = 0
+                update_state(screen, cells, 10)
+                pygame.display.update()
 
         screen.fill(GRID_COLOR)
 
