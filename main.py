@@ -2,9 +2,9 @@ import pygame
 import numpy as np
 import time
 
-BACKGROUND_COLOR = (0, 0, 0)
+BACKGROUND_COLOR = (50, 50, 50)
 GRID_COLOR = (20, 20, 20)
-GOING_TO_DIE_COLOR = (255, 240, 170)
+GOING_TO_DIE_COLOR = (255, 153, 153)
 ALIVE_COLOR = (255, 255, 255)
 
 
